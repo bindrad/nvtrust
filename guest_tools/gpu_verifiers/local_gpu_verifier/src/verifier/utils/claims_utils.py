@@ -143,7 +143,7 @@ class ClaimsUtils:
         return overallAttestationToken
 
     @staticmethod
-    def create_detached_eat_claims(attest_result: bool, gpu_claims_list: List[Any], nonce: str, hwmodel: str, oemid: str, ueid: str, driver_warnings: List[str], vbios_warnings: List[str]):
+    def create_detached_eat_claims(attest_result: bool, gpu_claims_list: List[Any], nonce: str, hwmodel: str, oemid: str, ueid: str, driver_warnings: List[str], vbios_warnings: List[str], gpu_type: str):
 
         """Utility method to create detached EAT claims for a specific attestation token.
 
@@ -175,6 +175,7 @@ class ClaimsUtils:
             jwt.encode(gpu_claims, 'secret', "HS256")
             gpu_claims["eat_nonce"] = nonce
             gpu_claims["hwmodel"] = hwmodel[i] if i < len(hwmodel) else None
+            gpu_claims["gpu_type"] = gpu_type[i] if i < len(gpu_type) else None
             gpu_claims["ueid"] = str(ueid[i]) if i < len(ueid) else ""
             gpu_claims["oemid"] = oemid[i] if i < len(oemid) else None
             gpu_claims["iss"] = "LOCAL_GPU_VERIFIER"

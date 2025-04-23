@@ -180,6 +180,7 @@ class BaseSettings:
         self.gpu_attestation_report_cert_status = None
         self.gpu_driver_rim_cert_status = None
         self.gpu_vbios_rim_cert_status = None
+        self.gpu_type = None
 
     @classmethod
     def mark_attestation_report_as_available(cls, flag=True):
@@ -371,6 +372,14 @@ class BaseSettings:
     def mark_gpu_driver_version(self, driver_version):
         event_log.debug("mark_gpu_driver_version called.")
         self.gpu_driver_version = driver_version
+    
+    def check_gpu_type(self):
+        event_log.debug(f"check_gpu_type called.{self.gpu_type}")
+        return self.gpu_type
+
+    def mark_gpu_type(self, gpu_type):
+        event_log.debug("mark_gpu_type called.")
+        self.gpu_type = gpu_type
 
     def check_gpu_vbios_version(self):
         event_log.debug(f"check_gpu_vbios_version called.{self.gpu_vbios_version}")
@@ -517,7 +526,8 @@ class BaseSettings:
                  (BaseSettings.allow_hold_cert and self.check_gpu_vbios_rim_cert_ocsp_status() == 'revoked' and self.check_gpu_vbios_rim_cert_revocation_reason() == 'certificate_hold')) and \
                 self.check_rim_vbios_measurements_availability() and \
                 self.check_if_no_driver_vbios_measurement_index_conflict() and \
-                self.check_if_measurements_are_matching() == "success":
+                self.check_if_measurements_are_matching() == "success" and \
+                self.check_gpu_type():
             BaseSettings.test_result = True
             return True
         else:

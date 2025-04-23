@@ -50,6 +50,7 @@ from pynvml import (
     nvmlSystemGetConfComputeSettings,
     NVML_CC_ACCEPTING_CLIENT_REQUESTS_FALSE,
     NVML_CC_ACCEPTING_CLIENT_REQUESTS_TRUE,
+    nvmlDeviceGetName,
 )
 
 from verifier.utils import (
@@ -269,6 +270,14 @@ class NvmlHandler:
         """
         return get_gpu_architecture_value(self.GPUArchitecture)
 
+    def get_gpu_type(self):
+        """ Fetches the GPU type of the current GPU.
+
+        Returns:
+            [str]: the GPU type.
+        """
+        return self.GPUType
+
     def init_handle(self):
         """ Fetches the GPU handle for the current GPU index value.
         """
@@ -317,6 +326,14 @@ class NvmlHandler:
                                                            "nvmlDeviceGetVbiosVersion"],
                                                           BaseSettings.MAX_NVML_TIME_DELAY)
 
+    def init_gpu_type(self):
+        """ Fetches and assigns the GPU type field via pynvml api.
+        """
+        self.GPUType = function_wrapper_with_timeout([nvmlDeviceGetName,
+                                                      self.Handles[self.Index],
+                                                      "nvmlDeviceGetName"],
+                                                     BaseSettings.MAX_NVML_TIME_DELAY)
+
     def __init__(self, index, nonce, settings):
         """ Constructor method for the NvmlHandler class that initializes the
         various field values.
@@ -336,6 +353,7 @@ class NvmlHandler:
         self.init_uuid()
         self.init_gpu_architecture()
         self.init_vbios_version()
+        self.init_gpu_type()
         self.CertificateChains = GpuCertificateChains(self.Handles[index])
         self.AttestationReport = self.fetch_attestation_report(index, nonce)
         settings.mark_attestation_report_as_available()

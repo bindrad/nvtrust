@@ -73,6 +73,7 @@ from verifier.nvml.gpu_cert_chains import GpuCertificateChains
 arguments_as_dictionary = None
 previous_try_status = None
 hwmodel = []
+gpu_type = []
 oemid = []
 ueid = []
 gpu_driver_attestation_warning_list = []
@@ -360,12 +361,15 @@ def attest(arguments_as_dictionary, nonce, gpu_evidence_list):
 
             driver_version = gpu_info_obj.get_driver_version()
             vbios_version = gpu_info_obj.get_vbios_version()
+            gpu_model_type = gpu_info_obj.get_gpu_type()
             vbios_version = vbios_version.lower()
 
             info_log.info(f'\tDriver version fetched : {driver_version}')
             info_log.info(f'\tVBIOS version fetched : {vbios_version}')
+            info_log.info(f'\tGPU Type fetched : {gpu_type}')
             settings.mark_gpu_driver_version(driver_version)
             settings.mark_gpu_vbios_version(vbios_version)
+            settings.mark_gpu_type(gpu_model_type)
 
             event_log.debug(f'GPU info fetched : \n\t\t{vars(gpu_info_obj)}')
 
@@ -389,6 +393,7 @@ def attest(arguments_as_dictionary, nonce, gpu_evidence_list):
                     0].value
                 hwmodel.append(common_name)
                 ueid.append(gpu_attestation_cert_chain[0].get_serial_number())
+                gpu_type.append(gpu_model_type)
 
             gpu_leaf_cert = (gpu_attestation_cert_chain[0])
             event_log.debug("\t\tverifying attestation certificate chain.")
@@ -596,7 +601,7 @@ def attest(arguments_as_dictionary, nonce, gpu_evidence_list):
 
         jwt_claims = ClaimsUtils.create_detached_eat_claims(overall_status, gpu_claims_list, nonce, hwmodel, oemid,
                                                             ueid, gpu_driver_attestation_warning_list,
-                                                            gpu_vbios_attestation_warning_list)
+                                                            gpu_vbios_attestation_warning_list, gpu_type)
         event_log.debug("-----------------------------------")
         event_log.debug("-----------ENDING-----------")
         return overall_status, jwt_claims
